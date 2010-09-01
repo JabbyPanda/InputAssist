@@ -1,0 +1,11 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace controls "com.jabbypanda.controls.*";
+
+controls|InputAssist {
+    skinClass: 
+        ClassReference("com.jabbypanda.skins.InputAssistSkin");
+    highlight-background-color : #FFCC00;
+}
+

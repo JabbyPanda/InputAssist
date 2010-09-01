@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer focusEnabled="false" 
+                xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                xmlns:s="library://ns.adobe.com/flex/spark" 
+                xmlns:c="odyssey.common.component.*">    
+    <s:states>
+        <s:State name="normal" />            
+        <s:State name="hovered" />
+        <s:State name="selected" />        
+    </s:states>    
+    <fx:Script>
+        <![CDATA[            
+            import flashx.textLayout.elements.*;
+            
+            import com.jabbypanda.controls.HighlightItemList;
+            import com.jabbypanda.data.SearchModes;
+            import com.jabbypanda.event.HighlightItemListEvent;
+            
+            import spark.components.RichText;
+            
+            override public function set label(value:String) : void {
+                super.label = value;                
+                
+                applyHighlight();
+            }     
+            
+            override public function set data(value:Object):void {
+                super.data = value;
+                
+                HighlightItemList(owner).addEventListener(HighlightItemListEvent.LOOKUP_VALUE_CHANGE, onLookupValueChange);
+            }
+            
+            private function applyHighlight():void {                
+                var lookupTextValue : String = HighlightItemList(owner).lookupValue;
+                var textFlow:TextFlow = new TextFlow();
+                var paragraph:ParagraphElement = new ParagraphElement();
+                textFlow.addChild(paragraph);
+                var elements:Vector.<FlowElement>;
+                
+                elements = highlight(label, lookupTextValue);
+                
+                var n:int = elements.length;
+                for (var i:int = 0; i < n; i++){
+                    paragraph.addChild(elements[i]);
+                }
+                
+                RichText(labelDisplay).textFlow = textFlow;
+            }
+            
+            private function findTextSpanIndexesForPrefixSearchMode(text:String, query:String) : Vector.<int> {
+                var indexes:Vector.<int> = new Vector.<int>();
+                var index:int = 0;
+                var textLowerCase:String = text.toLocaleLowerCase();
+                var queryLowerCase:String = query.toLocaleLowerCase();
+                index = textLowerCase.indexOf(queryLowerCase, index);
+                
+                /* 
+                interested only in text segments found 
+                at the beginning of the text
+                */
+                if (index == 0) {
+                    indexes.push(index);
+                }
+                
+                return indexes;
+            }
+            
+            private function findTextSpanIndexesForInfixSearchMode(text:String, query:String) : Vector.<int> {
+                var indexes:Vector.<int> = new Vector.<int>();
+                var index:int = 0;
+                var textLowerCase:String = text.toLocaleLowerCase();
+                var queryLowerCase:String = query.toLocaleLowerCase();
+                var queryLength:int = query.length;
+                
+                if (queryLength > 0 ) {
+                    while (true)
+                    {
+                        index = textLowerCase.indexOf(queryLowerCase, index);
+                        if (index == -1)
+                            break;
+                        
+                        indexes.push(index);
+                        index += queryLength;
+                    }
+                }
+                
+                return indexes;
+            }
+            
+            private function highlight(text:String, query:String):Vector.<FlowElement> {
+                var result:Vector.<FlowElement> = new Vector.<FlowElement>();                 
+                var spanIndexes:Vector.<int> = new Vector.<int>();
+                var queryLength:int = query.length;
+                
+                switch (HighlightItemList(owner).searchMode) {
+                    case SearchModes.PREFIX_SEARCH :
+                        spanIndexes = findTextSpanIndexesForPrefixSearchMode(text, query);
+                        break;
+                    case SearchModes.INFIX_SEARCH :
+                        spanIndexes = findTextSpanIndexesForInfixSearchMode(text, query);                         
+                        break;
+                }
+                
+                // now add SpanElement for each part of text. E.g. if we have 
+                // text="aBc" and query is "b" then we add "a" and "c" as simple
+                // span and "B" as highlighted span.                
+                var backgroundColor:uint = HighlightItemList(owner).getStyle("highlightBackgroundColor");                
+                
+                var matchedSpanCount:int = spanIndexes.length;
+                
+                // no matches
+                if (matchedSpanCount == 0) {  
+                    addSpan(result, text);
+                }
+                else {
+                    var spanFirstCharIndex :int = 0;
+                    for (var spanCountIndex:int = 0; spanCountIndex < matchedSpanCount; spanCountIndex++)
+                    {
+                        if (spanFirstCharIndex != spanIndexes[spanCountIndex]) {
+                            addSpan(result, text.substring(spanFirstCharIndex, spanIndexes[spanCountIndex]));
+                        }
+                        
+                        addSpan(result, text.substr(spanIndexes[spanCountIndex], queryLength),
+                            backgroundColor);
+                        
+                        spanFirstCharIndex = spanIndexes[spanCountIndex] + queryLength;
+                    }
+                    
+                    // apply the normal style to the rest of the text
+                    if (spanFirstCharIndex != text.length) {
+                        addSpan(result, text.substr(spanFirstCharIndex));
+                    }
+                } 
+                
+                return result;
+            }
+            
+            private function addSpan(vector:Vector.<FlowElement>, text:String, 
+                                     backgroundColor:* = "transparent"):void {
+                var span:SpanElement = new SpanElement();
+                span.text = text;
+                span.backgroundColor = backgroundColor;
+                vector.push(span);
+            }
+            
+            private function onLookupValueChange(event : HighlightItemListEvent) : void {
+                applyHighlight();
+            }
+            
+        ]]>
+    </fx:Script>       
+    <s:RichText id="labelDisplay"
+                verticalCenter="0"                   
+                left="3" right="3" top="6" bottom="4">
+    </s:RichText>
+</s:ItemRenderer>

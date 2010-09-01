@@ -1,0 +1,12 @@
+v0.1
+
+[+]Added style "highlightBackgroundColor" to InputAssist
+
+[*]Changed classes namespace to match industry standart 
+[*]Changed the algorithm for the highlighting of matched text segments, thankfully to 
+ Maxim Kachurovsky "Slov v sapogah" for an idea http://kachurovskiy.com/
+
+[!] Fixed the appearance of popup list when "forceAuto" option is on and 
+focus is moved between 2 different focusManagers
+
+ 
