@@ -219,47 +219,18 @@ package com.jabbypanda.controls {
                 list.labelFunction = labelFunction;
                 list.searchMode = searchMode;
                 list.requireSelection = requireSelection;
-                //list.setStyle("highlightBackgroundColor", getStyle("highlightBackgroundColor"));
-                list.styleName = new StyleProxy(this, {}); ;
+                list.styleName = new StyleProxy(this, {});
                 
                 list.addEventListener(HighlightItemListEvent.ITEM_CLICK, onListItemClick);
             }                        
         }
-        
-        // Override the styleChanged() method to detect changes in your new style.
-        override public function styleChanged(styleProp:String):void {
-            
-            super.styleChanged(styleProp);
-            
-            // Check to see if style changed. 
-            if (styleProp == "highlightBackgroundColor") {
-                _highlightBackgroundColorStyleChanged = true;
-                invalidateDisplayList();
-                /*if (list) {
-                    //list.styleChanged(styleProp); 
-                } else {
-                    
-                }*/
-            }
-        }
-        
+               
         override public function setFocus() : void {            
             if (inputTxt) {
                 inputTxt.setFocus();
             }
         }
-        
-        override protected function updateDisplayList(unscaledWidth:Number,
-                                                      unscaledHeight:Number):void {
-            super.updateDisplayList(unscaledWidth, unscaledHeight);
-            
-            // Check to see if style changed. 
-            if (_highlightBackgroundColorStyleChanged) {
-                //list.setStyle("highlightBackgroundColor", getStyle("highlightBackgroundColor"));
-                _highlightBackgroundColorStyleChanged = false;
-            }
-        }
-        
+                
         protected function set enteredText(t : String) : void {
             _enteredText = t;
             if (inputTxt) {
@@ -431,8 +402,6 @@ package com.jabbypanda.controls {
         private var _dataProviderChanged : Boolean;        
                 
         private var _enteredText : String = "";
-        
-        private var _highlightBackgroundColorStyleChanged : Boolean;
         
         private var _labelField : String;
         
