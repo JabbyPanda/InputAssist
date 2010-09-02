@@ -22,6 +22,7 @@ package com.jabbypanda.controls {
 	import mx.managers.IFocusManagerComponent;
 	import mx.managers.SystemManager;
 	import mx.styles.CSSStyleDeclaration;
+	import mx.styles.StyleProxy;
 	
 	import spark.components.PopUpAnchor;
 	import spark.components.TextInput;
@@ -41,7 +42,7 @@ package com.jabbypanda.controls {
      *  @playerversion AIR 1.5
      *  @productversion Flex 4
      */
-    [Style(name="highlightBackgroundColor", type="uint", format="Color", inherit="no", theme="spark")]
+    [Style(name="highlightBackgroundColor", type="uint", format="Color", inherit="yes", theme="spark")]
     
 	[Event (name="select", type="com.jabbypanda.event.InputAssistEvent")]		
 	public class InputAssist extends SkinnableComponent {
@@ -49,13 +50,9 @@ package com.jabbypanda.controls {
         [Bindable]
         public var maxRows : Number = 6;
         
-        public var minChars : Number = 1;                       
-        
-        public var requireSelection : Boolean = false;
-        
         public var forceOpen : Boolean = true;
         
-        public var enumClass : Class;
+        public var requireSelection : Boolean = false;        
 		        
         [SkinPart(required="true",type="spark.components.PopUpAnchor")]
 		public var popUp : PopUpAnchor;
@@ -74,11 +71,11 @@ package com.jabbypanda.controls {
             var customListStyles : CSSStyleDeclaration;
                         
             if (!FlexGlobals.topLevelApplication.styleManager.getStyleDeclaration("com.jabbypanda.controls.InputAssist")) {
-                // If there is no CSS definition for HighlightItemList 
+                // If there is no CSS definition for InputAssist 
                 // then create one and set the default value.
                 customListStyles = new CSSStyleDeclaration();
                 customListStyles.defaultFactory = function() : void {
-                    this.highlightBackgroundColor = 0x00FF00;                    
+                    this.highlightBackgroundColor = 0xFFCC00;                    
                 }
                                  
                 FlexGlobals.topLevelApplication.styleManager.setStyleDeclaration("com.jabbypanda.controls.InputAssist", customListStyles, true);                                
@@ -90,7 +87,7 @@ package com.jabbypanda.controls {
         public function InputAssist() {
             super();
             this.mouseEnabled = true;            
-            this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);            
+            this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
         }        
                         
         [Bindable]
@@ -187,37 +184,23 @@ package com.jabbypanda.controls {
             }
         }
         
-        
-        override public function setFocus() : void {            
-            if (inputTxt) {
-                inputTxt.setFocus();
+        override protected function commitProperties():void {            
+            if (_dataProviderChanged) {                
+                _dataProviderChanged = false;                
+                list.dataProvider = _collection;                                 
             }
-        }
-                        
-        // Override the styleChanged() method to detect changes in your new style.
-        override public function styleChanged(styleProp:String):void {
-                        
-            super.styleChanged(styleProp);
-                                    
-            // Check to see if style changed. 
-            if (styleProp == "highlightBackgroundColor") {
-                _highlightBackgroundColorStyleChanged = true; 
-                invalidateDisplayList();
-                return;
-            }
-        }
-        
-        override protected function updateDisplayList(unscaledWidth:Number,
-                                                      unscaledHeight:Number):void {
-            super.updateDisplayList(unscaledWidth, unscaledHeight);
             
-            // Check to see if style changed. 
-            if (_highlightBackgroundColorStyleChanged) {
-                list.setStyle("highlightBackgroundColor", getStyle("highlightBackgroundColor"));
-                _highlightBackgroundColorStyleChanged = false;
+            if (_selectedItemChanged) {
+                var selectedIndex : int = _collection.getItemIndex(selectedItem);                
+                list.selectedIndex = _collection.getItemIndex(selectedItem);
+                _selectedItemChanged = false;
             }
+            
+            // Should be last statement.
+            // Don't move it up.
+            super.commitProperties();                        
         }
-        
+                              
         override protected function partAdded(partName : String, instance : Object) : void {
             super.partAdded(partName, instance)
             
@@ -236,29 +219,45 @@ package com.jabbypanda.controls {
                 list.labelFunction = labelFunction;
                 list.searchMode = searchMode;
                 list.requireSelection = requireSelection;
-                list.setStyle("highlightBackgroundColor", getStyle("highlightBackgroundColor"));
-                //list.styleName = this;
+                //list.setStyle("highlightBackgroundColor", getStyle("highlightBackgroundColor"));
+                list.styleName = new StyleProxy(this, {}); ;
                 
                 list.addEventListener(HighlightItemListEvent.ITEM_CLICK, onListItemClick);
             }                        
-        }  
+        }
         
-        override protected function commitProperties():void {            
+        // Override the styleChanged() method to detect changes in your new style.
+        override public function styleChanged(styleProp:String):void {
             
-            if (_dataProviderChanged) {                
-                _dataProviderChanged = false;                
-                list.dataProvider = _collection;                                 
+            super.styleChanged(styleProp);
+            
+            // Check to see if style changed. 
+            if (styleProp == "highlightBackgroundColor") {
+                _highlightBackgroundColorStyleChanged = true;
+                invalidateDisplayList();
+                /*if (list) {
+                    //list.styleChanged(styleProp); 
+                } else {
+                    
+                }*/
             }
-            
-            if (_selectedItemChanged) {
-                var selectedIndex : int = _collection.getItemIndex(selectedItem);                
-                list.selectedIndex = _collection.getItemIndex(selectedItem);
-                _selectedItemChanged = false;
+        }
+        
+        override public function setFocus() : void {            
+            if (inputTxt) {
+                inputTxt.setFocus();
             }
+        }
+        
+        override protected function updateDisplayList(unscaledWidth:Number,
+                                                      unscaledHeight:Number):void {
+            super.updateDisplayList(unscaledWidth, unscaledHeight);
             
-            // Should be last statement.
-            // Don't move it up.
-            super.commitProperties();                        
+            // Check to see if style changed. 
+            if (_highlightBackgroundColorStyleChanged) {
+                //list.setStyle("highlightBackgroundColor", getStyle("highlightBackgroundColor"));
+                _highlightBackgroundColorStyleChanged = false;
+            }
         }
         
         protected function set enteredText(t : String) : void {
@@ -318,32 +317,6 @@ package com.jabbypanda.controls {
             }
         }                
         
-        private function onInputFieldChange(event : TextOperationEvent = null) : void {
-            _completionAccepted = false;
-            enteredText = inputTxt.text;            
-            filterData();
-        }
-        
-        private function onInputFieldKeyDown(event: KeyboardEvent) : void {        	            
-            switch (event.keyCode) {
-                case Keyboard.UP:
-                case Keyboard.DOWN:
-                case Keyboard.END:
-                case Keyboard.HOME:
-                case Keyboard.PAGE_UP:
-                case Keyboard.PAGE_DOWN: 
-                    list.focusListUponKeyboardNavigation(event);                                     			
-                    break;                   
-                case Keyboard.ENTER:
-                    acceptCompletion();
-                    break;
-                case Keyboard.TAB:
-                case Keyboard.ESCAPE:
-                    restoreEnteredTextAndHidePopUp(!_completionAccepted);
-                    break;
-            }            
-        }
-        
         private function hidePopUp() : void {
             popUp.popUp.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);
             popUp.displayPopUp = false;            
@@ -378,7 +351,18 @@ package com.jabbypanda.controls {
         private function get isDropDownOpen() : Boolean {
             return popUp.displayPopUp;
         }
-                
+        
+        private function onAddedToStage(event : Event) : void {            
+            focusManager.addEventListener(FlexEvent.FLEX_WINDOW_ACTIVATE, onFlexWindowActivate);
+        }
+        
+        private function onFlexWindowActivate(event : FlexEvent) : void {
+            /* reset lastFocus value to prevent shifting focus 
+            to previously selected component
+            */
+            (focusManager as FocusManager).lastFocus = null;                        
+        }
+        
         private function onInputFieldFocusIn(event : FocusEvent) : void {            
             if (forceOpen) {
             	filterData();
@@ -390,7 +374,33 @@ package com.jabbypanda.controls {
         private function onInputFieldFocusOut(event : FocusEvent) : void {
             restoreEnteredTextAndHidePopUp(false);            
         }		        				
-                
+        
+        private function onInputFieldChange(event : TextOperationEvent = null) : void {
+            _completionAccepted = false;
+            enteredText = inputTxt.text;            
+            filterData();
+        }
+        
+        private function onInputFieldKeyDown(event: KeyboardEvent) : void {        	            
+            switch (event.keyCode) {
+                case Keyboard.UP:
+                case Keyboard.DOWN:
+                case Keyboard.END:
+                case Keyboard.HOME:
+                case Keyboard.PAGE_UP:
+                case Keyboard.PAGE_DOWN: 
+                    list.focusListUponKeyboardNavigation(event);                                     			
+                    break;                   
+                case Keyboard.ENTER:
+                    acceptCompletion();
+                    break;
+                case Keyboard.TAB:
+                case Keyboard.ESCAPE:
+                    restoreEnteredTextAndHidePopUp(!_completionAccepted);
+                    break;
+            }            
+        }
+        
         private function onListItemClick(event : HighlightItemListEvent) : void {                        
             acceptCompletion();            
             event.stopPropagation();
@@ -412,17 +422,6 @@ package com.jabbypanda.controls {
             if (!mouseDownInsideComponent) {                
                 restoreEnteredTextAndHidePopUp(!_completionAccepted);
             }
-        }
-                
-        private function onFlexWindowActivate(event : FlexEvent) : void {
-            /* reset lastFocus value to prevent shifting focus 
-               to previously selected component
-            */
-            (focusManager as FocusManager).lastFocus = null;                        
-        }
-        
-        private function onAddedToStage(event : Event) : void {            
-            focusManager.addEventListener(FlexEvent.FLEX_WINDOW_ACTIVATE, onFlexWindowActivate);
         }
                                     
         private var _collection : ArrayCollection = new ArrayCollection();
