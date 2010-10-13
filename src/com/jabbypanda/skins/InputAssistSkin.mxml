@@ -14,6 +14,11 @@
         [HostComponent("com.jabbypanda.controls.InputAssist")]
         ]]>
     </fx:Metadata>     
+    <fx:Script>
+        <![CDATA[
+            import com.jabbypanda.assets.Icons;
+        ]]>
+    </fx:Script>
     <s:states>
         <s:State name="normal" />
         <s:State name="disabled" />
@@ -37,5 +42,8 @@
             </c:HighlightItemList>
         </s:Group>        
     </s:PopUpAnchor>        
-    <s:TextInput id="inputTxt" left="0" right="0" top="0" bottom="0"/>     
+    <s:TextInput id="inputTxt" left="0" right="0" top="0" bottom="0"/>
+    <s:BitmapImage source="{Icons.Progress}" 
+                   visible="{hostComponent.processing}"
+                   right="2" top="2" bottom="2"/>
 </s:Skin>

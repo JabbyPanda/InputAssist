@@ -50,6 +50,9 @@ package com.jabbypanda.controls {
         [Bindable]
         public var maxRows : Number = 6;
         
+        [Bindable]
+        public var processing : Boolean;
+        
         public var forceOpen : Boolean = true;
         
         public var requireSelection : Boolean = false;        
