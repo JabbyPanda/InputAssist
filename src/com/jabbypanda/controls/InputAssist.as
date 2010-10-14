@@ -88,8 +88,9 @@ package com.jabbypanda.controls {
         
         public function InputAssist() {
             super();
-            this.mouseEnabled = true;            
+            this.mouseEnabled = true;
             this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+            dataProvider = null;
         }        
                         
         [Bindable]
@@ -99,7 +100,9 @@ package com.jabbypanda.controls {
             }
         	else if (value is ArrayCollection) {
         		_collection = value as ArrayCollection;                
-        	}
+        	} else {
+                _collection = new ArrayCollection();
+            }
                             	
             _dataProviderChanged = true;
             invalidateProperties(); 
@@ -142,6 +145,7 @@ package com.jabbypanda.controls {
             return _labelFunction; 
         }                		       
         
+        [Bindable]
         public function get selectedItem() : Object { 
             return _selectedItem; 
         }
@@ -157,9 +161,7 @@ package com.jabbypanda.controls {
         public function set prompt(value : String) : void {
             _prompt = value;
             _promptChanged = true;
-            
-            // enable control when setting prompt
-            enabled = true;
+                        
             invalidateProperties();            
         }
         
@@ -251,6 +253,9 @@ package com.jabbypanda.controls {
                 }                                
                 
                 list.dataProvider = _collection;
+                
+                selectedItem = null;
+                
                 _dataProviderChanged = false;
             }
             
@@ -260,11 +265,11 @@ package com.jabbypanda.controls {
                 _selectedItemChanged = false;
             }
             
-            if (_promptChanged) {
+            if (_promptChanged && 
+                dataProvider && dataProvider.length > 0 
+                && !selectedItem) {                
+                enteredText = _prompt;
                 _promptChanged = false;
-                if (_prompt) {
-                    enteredText = _prompt;
-                }
             }
 
             if (_enabledChanged) {                
@@ -389,7 +394,13 @@ package com.jabbypanda.controls {
             	filterData();
             }
             
+            
             _previouslyEnteredText = enteredText;
+            
+            //empty displayed enteredText if selectedItem is not set yet
+            if (!selectedItem && enteredText) {
+                enteredText = "";
+            }            
         }
         
         private function onInputFieldFocusOut(event : FocusEvent) : void {

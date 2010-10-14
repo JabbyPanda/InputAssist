@@ -7,7 +7,7 @@ package com.jabbypanda.event {
      */	
     public class InputAssistEvent extends Event {
 		
-        public static const CHANGE : String = "change";
+        public static const CHANGE : String = "change";        
         
         public var data:Object;                
         
