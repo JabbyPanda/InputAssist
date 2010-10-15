@@ -1,34 +1,34 @@
 package com.jabbypanda.controls {
-    
-    import com.jabbypanda.data.SearchModes;
-    import com.jabbypanda.event.HighlightItemListEvent;
-    import com.jabbypanda.event.InputAssistEvent;
-    
-    import flash.display.DisplayObject;
-    import flash.display.DisplayObjectContainer;
-    import flash.events.Event;
-    import flash.events.FocusEvent;
-    import flash.events.KeyboardEvent;
-    import flash.ui.Keyboard;
-    
-    import mx.collections.ArrayCollection;
-    import mx.core.FlexGlobals;
-    import mx.core.mx_internal;
-    import mx.events.FlexEvent;
-    import mx.events.FlexMouseEvent;
-    import mx.managers.FocusManager;
-    import mx.managers.SystemManager;
-    import mx.styles.CSSStyleDeclaration;
-    import mx.styles.StyleProxy;
-    
-    import spark.components.PopUpAnchor;
-    import spark.components.TextInput;
-    import spark.components.supportClasses.SkinnableComponent;
-    import spark.events.TextOperationEvent;
-    import spark.utils.LabelUtil;
+
+	import com.jabbypanda.data.SearchModes;
+	import com.jabbypanda.event.HighlightItemListEvent;
+	import com.jabbypanda.event.InputAssistEvent;
+	
+	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
+	import flash.events.Event;
+	import flash.events.FocusEvent;
+	import flash.events.KeyboardEvent;
+	import flash.ui.Keyboard;
+	
+	import mx.collections.ArrayCollection;
+	import mx.core.FlexGlobals;
+	import mx.core.mx_internal;
+	import mx.events.FlexEvent;
+	import mx.events.FlexMouseEvent;
+	import mx.managers.FocusManager;
+	import mx.managers.SystemManager;
+	import mx.styles.CSSStyleDeclaration;
+	import mx.styles.StyleProxy;
+	
+	import spark.components.PopUpAnchor;
+	import spark.components.TextInput;
+	import spark.components.supportClasses.SkinnableComponent;
+	import spark.events.TextOperationEvent;
+	import spark.utils.LabelUtil;
     
     use namespace mx_internal;
-    
+	
     /**
      *  The color of the background for highlighted text segments 
      *
@@ -41,9 +41,9 @@ package com.jabbypanda.controls {
      */
     [Style(name="highlightBackgroundColor", type="uint", format="Color", inherit="yes", theme="spark")]
     
-    [Event (name="change", type="com.jabbypanda.event.InputAssistEvent")]
-    public class InputAssist extends SkinnableComponent {
-        
+	[Event (name="change", type="com.jabbypanda.event.InputAssistEvent")]
+	public class InputAssist extends SkinnableComponent {
+		                
         [Bindable]
         public var maxRows : Number = 6;
         
@@ -55,21 +55,21 @@ package com.jabbypanda.controls {
         public var requireSelection : Boolean = false;        
         
         [SkinPart(required="true",type="spark.components.PopUpAnchor")]
-        public var popUp : PopUpAnchor;
+		public var popUp : PopUpAnchor;
         
         [SkinPart(required="true",type="odyssey.common.component.HighlightItemList")]
         public var list : HighlightItemList;
         
         [SkinPart(required="true",type="spark.components.TextInput")]
         public var inputTxt : TextInput;
-        
+		        
         // Define a static variable.
         private static var classConstructed:Boolean = classConstruct();
         
         // Define a static method.
         private static function classConstruct():Boolean {
             var customListStyles : CSSStyleDeclaration;
-            
+                        
             if (!FlexGlobals.topLevelApplication.styleManager.getStyleDeclaration("com.jabbypanda.controls.InputAssist")) {
                 // If there is no CSS definition for InputAssist 
                 // then create one and set the default value.
@@ -77,7 +77,7 @@ package com.jabbypanda.controls {
                 customListStyles.defaultFactory = function() : void {
                     this.highlightBackgroundColor = 0xFFCC00;                    
                 }
-                
+                                 
                 FlexGlobals.topLevelApplication.styleManager.setStyleDeclaration("com.jabbypanda.controls.InputAssist", customListStyles, true);                                
             }                        
             
@@ -90,30 +90,33 @@ package com.jabbypanda.controls {
             this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
             dataProvider = null;
         }        
-        
+                        
         [Bindable]
         public function set dataProvider(value:Object) : void {
             if (value is Array) {
-                _collection = new ArrayCollection(value as Array);
+        		_collection = new ArrayCollection(value as Array);
             }
-            else if (value is ArrayCollection) {
-                _collection = value as ArrayCollection;                
-            } else {
+        	else if (value is ArrayCollection) {
+        		_collection = value as ArrayCollection;                
+        	} else {
                 _collection = new ArrayCollection();
             }
+            
+            //reset previously selected item
+            selectedItem = null;
             
             if (isOurFocus(this.getFocus())) {
                 filterData();
             }
-            
+                            	
             _dataProviderChanged = true;
             invalidateProperties(); 
         }
-        
+		
         public function get dataProvider() : Object {
             return _collection; 
         }		                
-        
+		
         public function set searchMode(searchMode : String) : void {            
             _searchMode = searchMode; 
             if (list) {
@@ -130,19 +133,19 @@ package com.jabbypanda.controls {
         };
         
         public function set labelField(field:String) : void {
-            _labelField = field; 
-            if (list) {
+			_labelField = field; 
+			if (list) {
                 list.labelField = field;   
             } 
-        }
-        
+		}
+		
         public function get labelFunction() : Function	 { 
             return _labelFunction; 
         }
         
         public function set labelFunction(func:Function) : void {
-            _labelFunction = func; 
-            if (list) {
+        	_labelFunction = func; 
+        	if (list) {
                 list.labelFunction = func;   
             } 
         }
@@ -177,8 +180,8 @@ package com.jabbypanda.controls {
             _errorMessageChanged = true;
             invalidateProperties();
         }
-        
-        
+
+		
         // default filter function         
         public function filterFunction(item : Object) : Boolean {
             var itemLabel : String = itemToLabel(item).toLowerCase();
@@ -202,7 +205,7 @@ package com.jabbypanda.controls {
             
             return false;
         }
-        
+		        
         override public function set enabled(value:Boolean) : void {
             super.enabled = value;
             _enabledChanged = true;
@@ -275,7 +278,7 @@ package com.jabbypanda.controls {
                 displayPromptMessage();                
                 _promptChanged = false;
             }
-            
+
             if (_errorMessageChanged) {
                 displayErrorMessage();
                 _errorMessageChanged = false;
@@ -291,7 +294,7 @@ package com.jabbypanda.controls {
             // Don't move it up.
             super.commitProperties();                        
         }
-        
+                               
         protected function set enteredText(t : String) : void {
             _enteredText = t;            
             if (inputTxt) {
@@ -333,7 +336,7 @@ package com.jabbypanda.controls {
                 proposedSelectedItem = null;
                 displayInputTextText(null);
             }
-            
+                       
             if (proposedSelectedItem != selectedItem) {
                 selectedItem = proposedSelectedItem;
                 var e:InputAssistEvent = new InputAssistEvent(InputAssistEvent.CHANGE, _selectedItem);
@@ -357,7 +360,7 @@ package com.jabbypanda.controls {
         }
         
         private function displayInputTextText(selectedItem : Object) : void {
-            _previouslyDisplayedText = enteredText = itemToLabel(selectedItem as Object);                                    
+            _previouslyDisplayedText = enteredText = getSelectedItemDisplayLabel(selectedItem as Object);                                    
         }
         
         private function displayErrorMessage() : void {
@@ -371,7 +374,14 @@ package com.jabbypanda.controls {
                 inputTxt.text = _prompt;
             }            
         }
-                
+        
+        private function getSelectedItemDisplayLabel(item : Object) : String {
+            /*if (item == null) {                
+                return "";                
+            }*/			
+            return itemToLabel(item);                        
+        }
+        
         private function hidePopUp() : void {
             if (isDropDownOpen) {
                 popUp.popUp.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);
@@ -382,13 +392,13 @@ package com.jabbypanda.controls {
         private function showPopUp() : void {
             if (!isDropDownOpen) {
                 popUp.displayPopUp = true;
-                
+                                
                 if (requireSelection) {
                     setListOptionsSelectedIndex();                
                 } else {
                     list.selectedIndex = -1;
                 }
-                
+                                        
                 popUp.popUp.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);
             }
         }
@@ -406,7 +416,7 @@ package com.jabbypanda.controls {
             if (showPreviousText) {
                 enteredText = _previouslyDisplayedText;
             }
-            
+                        
             hidePopUp();            
         }                
         
@@ -464,7 +474,7 @@ package com.jabbypanda.controls {
         private function onMouseDownOutside(event:FlexMouseEvent) : void {            
             var mouseDownInsideComponent : Boolean = false;            
             var clickedObject : DisplayObjectContainer = event.relatedObject as DisplayObjectContainer;
-            
+                        
             while (!(clickedObject.parent is SystemManager)) {                
                 if (clickedObject == this) {
                     mouseDownInsideComponent = true;
@@ -473,7 +483,7 @@ package com.jabbypanda.controls {
                 
                 clickedObject = clickedObject.parent;
             }
-            
+                        
             if (!mouseDownInsideComponent) {                
                 showPreviousTextAndHidePopUp(!_completionAccepted);
             }
@@ -489,13 +499,13 @@ package com.jabbypanda.controls {
             */
             (focusManager as FocusManager).lastFocus = null;                        
         }
-        
+                                    
         private var _collection : ArrayCollection = new ArrayCollection();
-        
+    
         private var _completionAccepted : Boolean;
         
         private var _dataProviderChanged : Boolean;        
-        
+                
         private var _enteredText : String = "";
         
         private var _labelField : String;
@@ -519,7 +529,7 @@ package com.jabbypanda.controls {
         private var _errorMessageChanged : Boolean;
         
         private var _enabledChanged : Boolean;
-        
+               
     }
-    
+		
 }
