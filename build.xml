@@ -65,8 +65,15 @@
 	        	<include-file name="manifest.xml" path="${basedir}/manifest.xml"/>
 	            <source-path path-element="${basedir}/src"/>
 	        	<include-sources dir="${basedir}/src" includes="*"/>
-	        	<debug>false</debug>	        	
-	        	<static-link-runtime-shared-libraries>true</static-link-runtime-shared-libraries>	        		            
+	        	<debug>false</debug>
+	        	<external-library-path file="${FLEX_HOME}/frameworks/libs/framework.swc"/>
+                <external-library-path file="${FLEX_HOME}/frameworks/libs/flex.swc"/>
+                <external-library-path file="${FLEX_HOME}/frameworks/libs/spark.swc"/>
+                <external-library-path file="${FLEX_HOME}/frameworks/libs/sparkskins.swc"/>
+                <external-library-path file="${FLEX_HOME}/frameworks/libs/textLayout.swc"/>
+                <external-library-path file="${FLEX_HOME}/frameworks/libs/rpc.swc"/>
+                <external-library-path file="${FLEX_HOME}/frameworks/libs/utilities.swc"/>                	        	
+                <external-library-path file="${FLEX_HOME}/frameworks/libs/player/10.0/playerglobal.swc"/>
 	        </compc>
 	    </target>	
     <!-- Package the Build -->

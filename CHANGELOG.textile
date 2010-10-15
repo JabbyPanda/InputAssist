@@ -1,3 +1,11 @@
+v0.12
+[+] Added property "prompt"
+[+] Added property "errorMessage"
+[+] Added property "processing"
+
+[!] Fixed issue with dispatching InputAssistEvent.CHANGE event for nullable selectedItem
+[!] Fixed issue with auto-completion by hitting ENTER key
+
 v0.1
 
 [+]Added style "highlightBackgroundColor" to InputAssist
