@@ -1,34 +1,34 @@
 package com.jabbypanda.controls {
-
-	import com.jabbypanda.data.SearchModes;
-	import com.jabbypanda.event.HighlightItemListEvent;
-	import com.jabbypanda.event.InputAssistEvent;
-	
-	import flash.display.DisplayObject;
-	import flash.display.DisplayObjectContainer;
-	import flash.events.Event;
-	import flash.events.FocusEvent;
-	import flash.events.KeyboardEvent;
-	import flash.ui.Keyboard;
-	
-	import mx.collections.ArrayCollection;
-	import mx.core.FlexGlobals;
-	import mx.core.mx_internal;
-	import mx.events.FlexEvent;
-	import mx.events.FlexMouseEvent;
-	import mx.managers.FocusManager;
-	import mx.managers.SystemManager;
-	import mx.styles.CSSStyleDeclaration;
-	import mx.styles.StyleProxy;
-	
-	import spark.components.PopUpAnchor;
-	import spark.components.TextInput;
-	import spark.components.supportClasses.SkinnableComponent;
-	import spark.events.TextOperationEvent;
-	import spark.utils.LabelUtil;
+    
+    import com.jabbypanda.data.SearchModes;
+    import com.jabbypanda.event.HighlightItemListEvent;
+    import com.jabbypanda.event.InputAssistEvent;
+    
+    import flash.display.DisplayObject;
+    import flash.display.DisplayObjectContainer;
+    import flash.events.Event;
+    import flash.events.FocusEvent;
+    import flash.events.KeyboardEvent;
+    import flash.ui.Keyboard;
+    
+    import mx.collections.ArrayCollection;
+    import mx.core.FlexGlobals;
+    import mx.core.mx_internal;
+    import mx.events.FlexEvent;
+    import mx.events.FlexMouseEvent;
+    import mx.managers.FocusManager;
+    import mx.managers.SystemManager;
+    import mx.styles.CSSStyleDeclaration;
+    import mx.styles.StyleProxy;
+    
+    import spark.components.PopUpAnchor;
+    import spark.components.TextInput;
+    import spark.components.supportClasses.SkinnableComponent;
+    import spark.events.TextOperationEvent;
+    import spark.utils.LabelUtil;
     
     use namespace mx_internal;
-	
+    
     /**
      *  The color of the background for highlighted text segments 
      *
@@ -41,9 +41,9 @@ package com.jabbypanda.controls {
      */
     [Style(name="highlightBackgroundColor", type="uint", format="Color", inherit="yes", theme="spark")]
     
-	[Event (name="change", type="com.jabbypanda.event.InputAssistEvent")]		
-	public class InputAssist extends SkinnableComponent {
-		                
+    [Event (name="change", type="com.jabbypanda.event.InputAssistEvent")]
+    public class InputAssist extends SkinnableComponent {
+        
         [Bindable]
         public var maxRows : Number = 6;
         
@@ -54,24 +54,22 @@ package com.jabbypanda.controls {
         
         public var requireSelection : Boolean = false;        
         
-        public var noLookupOptionsMessage : String = "No available options";
-        
         [SkinPart(required="true",type="spark.components.PopUpAnchor")]
-		public var popUp : PopUpAnchor;
+        public var popUp : PopUpAnchor;
         
         [SkinPart(required="true",type="odyssey.common.component.HighlightItemList")]
         public var list : HighlightItemList;
         
         [SkinPart(required="true",type="spark.components.TextInput")]
         public var inputTxt : TextInput;
-		        
+        
         // Define a static variable.
         private static var classConstructed:Boolean = classConstruct();
         
         // Define a static method.
         private static function classConstruct():Boolean {
             var customListStyles : CSSStyleDeclaration;
-                        
+            
             if (!FlexGlobals.topLevelApplication.styleManager.getStyleDeclaration("com.jabbypanda.controls.InputAssist")) {
                 // If there is no CSS definition for InputAssist 
                 // then create one and set the default value.
@@ -79,7 +77,7 @@ package com.jabbypanda.controls {
                 customListStyles.defaultFactory = function() : void {
                     this.highlightBackgroundColor = 0xFFCC00;                    
                 }
-                                 
+                
                 FlexGlobals.topLevelApplication.styleManager.setStyleDeclaration("com.jabbypanda.controls.InputAssist", customListStyles, true);                                
             }                        
             
@@ -92,36 +90,29 @@ package com.jabbypanda.controls {
             this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
             dataProvider = null;
         }        
-                        
+        
         [Bindable]
         public function set dataProvider(value:Object) : void {
             if (value is Array) {
-        		_collection = new ArrayCollection(value as Array);
+                _collection = new ArrayCollection(value as Array);
             }
-        	else if (value is ArrayCollection) {
-        		_collection = value as ArrayCollection;                
-        	} else {
+            else if (value is ArrayCollection) {
+                _collection = value as ArrayCollection;                
+            } else {
                 _collection = new ArrayCollection();
             }
-                            	
+            
+            if (isOurFocus(this.getFocus())) {
+                filterData();
+            }
+            
             _dataProviderChanged = true;
             invalidateProperties(); 
         }
-		
+        
         public function get dataProvider() : Object {
             return _collection; 
         }		                
-		
-        public function set labelField(field:String) : void {
-			_labelField = field; 
-			if (list) {
-                list.labelField = field;   
-            } 
-		}
-		
-        public function get labelField() : String { 
-            return _labelField;
-        };
         
         public function set searchMode(searchMode : String) : void {            
             _searchMode = searchMode; 
@@ -129,46 +120,65 @@ package com.jabbypanda.controls {
                 list.searchMode = searchMode;   
             } 
         }
-                
+        
         public function get searchMode() : String { 
             return _searchMode;
         };
-		
-        public function set labelFunction(func:Function) : void {
-        	_labelFunction = func; 
-        	if (list) {
-                list.labelFunction = func;   
+        
+        public function get labelField() : String { 
+            return _labelField;
+        };
+        
+        public function set labelField(field:String) : void {
+            _labelField = field; 
+            if (list) {
+                list.labelField = field;   
             } 
         }
         
         public function get labelFunction() : Function	 { 
             return _labelFunction; 
-        }                		       
+        }
+        
+        public function set labelFunction(func:Function) : void {
+            _labelFunction = func; 
+            if (list) {
+                list.labelFunction = func;   
+            } 
+        }
         
         [Bindable]
         public function get selectedItem() : Object { 
             return _selectedItem; 
         }
         
-        public function set selectedItem(item : Object) : void {
+        public function set selectedItem(item : Object) : void {            
             _selectedItem = item;
-            _previouslyEnteredText = enteredText = getSelectedItemDisplayLabel(_selectedItem);
-                        
-            _selectedItemChanged = true;
-            invalidateProperties();
+            _selectedItemChanged = true;                                
+            invalidateProperties();            
+        }
+        
+        public function get prompt() : String {
+            return _prompt;
         }
         
         public function set prompt(value : String) : void {
             _prompt = value;
             _promptChanged = true;
-                        
             invalidateProperties();            
         }
         
-        public function get prompt() : String {            
-            return _prompt;
+        public function get errorMessage() : String {
+            return _errorMessage;
         }
-		
+        
+        public function set errorMessage(value : String) : void {
+            _errorMessage = value;
+            _errorMessageChanged = true;
+            invalidateProperties();
+        }
+        
+        
         // default filter function         
         public function filterFunction(item : Object) : Boolean {
             var itemLabel : String = itemToLabel(item).toLowerCase();
@@ -191,10 +201,6 @@ package com.jabbypanda.controls {
             }
             
             return false;
-        }
-		
-        public function itemToLabel(item : Object) : String {
-            return LabelUtil.itemToLabel(item, labelField, labelFunction);
         }
         
         override public function set enabled(value:Boolean) : void {
@@ -221,7 +227,7 @@ package com.jabbypanda.controls {
             super.partAdded(partName, instance)
             
             if (instance == inputTxt) {
-                inputTxt.text = _enteredText;
+                inputTxt.text = _enteredText;                
                 
                 inputTxt.addEventListener(FocusEvent.FOCUS_IN, onInputFieldFocusIn);
                 inputTxt.addEventListener(FocusEvent.FOCUS_OUT, onInputFieldFocusOut);
@@ -242,48 +248,52 @@ package com.jabbypanda.controls {
         }
         
         override protected function commitProperties():void {            
-            if (_dataProviderChanged) {      
+            if (_dataProviderChanged) {                                
+                list.dataProvider = _collection;
                 
                 if (!dataProvider || dataProvider.length == 0) {
                     enabled = false;
-                    enteredText = noLookupOptionsMessage;
-                } else {            
+                    displayErrorMessage();
+                } else {
                     enabled = true;
-                    enteredText = getSelectedItemDisplayLabel(_selectedItem as Object);
-                }                                
-                
-                list.dataProvider = _collection;
-                
-                selectedItem = null;
+                    if (prompt) {
+                        displayPromptMessage();
+                    } else {
+                        displayInputTextText(selectedItem);
+                    }
+                }
                 
                 _dataProviderChanged = false;
             }
             
-            if (_selectedItemChanged) {
-                var selectedIndex : int = _collection.getItemIndex(selectedItem);                
-                list.selectedIndex = _collection.getItemIndex(selectedItem);
+            if (_selectedItemChanged) {                
+                displayInputTextText(_selectedItem);
                 _selectedItemChanged = false;
             }
             
-            if (_promptChanged && 
-                dataProvider && dataProvider.length > 0 
-                && !selectedItem) {                
-                enteredText = _prompt;
+            if (_promptChanged) {
+                displayPromptMessage();                
                 _promptChanged = false;
             }
-
+            
+            if (_errorMessageChanged) {
+                displayErrorMessage();
+                _errorMessageChanged = false;
+            }
+            
             if (_enabledChanged) {                
                 inputTxt.enabled = enabled;
                 _enabledChanged = false;
             }
             
+            
             // Should be last statement.
             // Don't move it up.
             super.commitProperties();                        
         }
-                               
+        
         protected function set enteredText(t : String) : void {
-            _enteredText = t;
+            _enteredText = t;            
             if (inputTxt) {
                 inputTxt.text = t;
             }
@@ -291,126 +301,146 @@ package com.jabbypanda.controls {
             if (list) {
                 list.lookupValue = _enteredText;
             }
+            
+            filterData();
         }
         
         protected function get enteredText() : String {
             return _enteredText;
-        }
-        
-        protected function acceptCompletion() : void {                        
-            if (_collection.length > 0 && list.selectedIndex >= 0) {
-                _completionAccepted = true;                
-                selectedItem = _collection.getItemAt(list.selectedIndex);
-                hidePopUp();
-            }
-            else {
-                _completionAccepted = false;
-                selectedItem = null;
-                restoreEnteredTextAndHidePopUp(!_completionAccepted);
-            }
-            
-            var e:InputAssistEvent = new InputAssistEvent(InputAssistEvent.CHANGE, _selectedItem);
-            dispatchEvent(e);                         			
-        }
+        }                
         
         protected function filterData() : void {
             _collection.filterFunction = filterFunction;                        	
-            _collection.refresh();    
-                        
+            _collection.refresh();                                    
+        }
+        
+        protected function itemToLabel(item : Object) : String {
+            if (!item) {
+                return "";
+            } else {
+                return LabelUtil.itemToLabel(item, labelField, labelFunction);
+            }
+        }
+        
+        private function acceptCompletion() : void {            
+            var proposedSelectedItem : Object;            
+            if (_collection.length > 0 && list.selectedIndex >= 0) {
+                _completionAccepted = true;
+                proposedSelectedItem = _collection.getItemAt(list.selectedIndex);
+            }
+            else {
+                _completionAccepted = false;
+                proposedSelectedItem = null;
+                displayInputTextText(null);
+            }
+            
+            if (proposedSelectedItem != selectedItem) {
+                selectedItem = proposedSelectedItem;
+                var e:InputAssistEvent = new InputAssistEvent(InputAssistEvent.CHANGE, _selectedItem);
+                dispatchEvent(e);                
+                hidePopUp();
+            } else {
+                showPreviousTextAndHidePopUp(true);
+            }                        
+        }
+        
+        private function displayOptionsList() : void {
             if (_collection.length == 0) {                
                 hidePopUp();
-            } else if (!isDropDownOpen) {
-                if (forceOpen || enteredText.length > 0) {
-                    showPopUp();        
-                }                
+            } else if (forceOpen || enteredText.length > 0) {
+                showPopUp();
+                
+                if (isDropDownOpen && requireSelection) {                
+                    setListOptionsSelectedIndex();
+                }
             }
+        }
+        
+        private function displayInputTextText(selectedItem : Object) : void {
+            _previouslyDisplayedText = enteredText = getSelectedItemDisplayLabel(selectedItem as Object);                                    
+        }
+        
+        private function displayErrorMessage() : void {
+            if (_collection.length == 0) {
+                inputTxt.text = _errorMessage;
+            }
+        }
+        
+        private function displayPromptMessage() : void {            
+            if (_collection.length > 0) {
+                inputTxt.text = _prompt;
+            }            
         }
         
         private function getSelectedItemDisplayLabel(item : Object) : String {
-            if (item == null) {
-                if (prompt)  {                                    
-                    return prompt;
-                } else {
-                    return "";
-                }
-            }
-			
-            if (labelField) {
-            	return item[labelField];
-            }
-            else {
-            	return itemToLabel(item);
-            }
-        }                
+            /*if (item == null) {                
+            return "";                
+            }*/			
+            return itemToLabel(item);                        
+        }
         
         private function hidePopUp() : void {
-            popUp.popUp.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);
-            popUp.displayPopUp = false;            
+            if (isDropDownOpen) {
+                popUp.popUp.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);
+                popUp.displayPopUp = false;
+            }
         }
         
-        private function showPopUp() : void {            
-            popUp.displayPopUp = true;
-            
-            if (requireSelection) {
+        private function showPopUp() : void {
+            if (!isDropDownOpen) {
+                popUp.displayPopUp = true;
+                
+                if (requireSelection) {
+                    setListOptionsSelectedIndex();                
+                } else {
+                    list.selectedIndex = -1;
+                }
+                
+                popUp.popUp.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);
+            }
+        }
+        
+        private function setListOptionsSelectedIndex() : void {
+            var selectedIndex : int = _collection.getItemIndex(selectedItem);
+            if (selectedIndex != -1) {
+                list.selectedIndex = selectedIndex;
+            } else {
                 list.selectedIndex = 0;
             }
-            else {
-                list.selectedIndex = -1;
-            }
-            
-            if (list.dataGroup) {
-                list.dataGroup.verticalScrollPosition = 0;
-                list.dataGroup.horizontalScrollPosition = 0;
-            }
-            
-            popUp.popUp.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);
         }
         
-        private function restoreEnteredTextAndHidePopUp(restoreEnteredText : Boolean) : void {
-            if (restoreEnteredText) {
-                enteredText = _previouslyEnteredText;
+        private function showPreviousTextAndHidePopUp(showPreviousText : Boolean) : void {            
+            if (showPreviousText) {
+                enteredText = _previouslyDisplayedText;
             }
             
-            hidePopUp();
+            hidePopUp();            
         }                
         
         private function get isDropDownOpen() : Boolean {
             return popUp.displayPopUp;
         }
         
-        private function onAddedToStage(event : Event) : void {            
-            focusManager.addEventListener(FlexEvent.FLEX_WINDOW_ACTIVATE, onFlexWindowActivate);
+        private function onInputFieldChange(event : TextOperationEvent = null) : void {
+            _completionAccepted = false;
+            enteredText = inputTxt.text;
+            displayOptionsList();
         }
         
-        private function onFlexWindowActivate(event : FlexEvent) : void {
-            /* reset lastFocus value to prevent shifting focus 
-            to previously selected component
-            */
-            (focusManager as FocusManager).lastFocus = null;                        
-        }
-        
-        private function onInputFieldFocusIn(event : FocusEvent) : void {            
+        private function onInputFieldFocusIn(event : FocusEvent) : void {
+            displayInputTextText(selectedItem);
             if (forceOpen) {
-            	filterData();
+                displayOptionsList();
             }
-            
-            
-            _previouslyEnteredText = enteredText;
-            
-            //empty displayed enteredText if selectedItem is not set yet
-            if (!selectedItem && enteredText) {
-                enteredText = "";
-            }            
         }
         
         private function onInputFieldFocusOut(event : FocusEvent) : void {
-            restoreEnteredTextAndHidePopUp(false);            
-        }		        				
-        
-        private function onInputFieldChange(event : TextOperationEvent = null) : void {
-            _completionAccepted = false;
-            enteredText = inputTxt.text;            
-            filterData();
+            if (!selectedItem && prompt) {
+                displayPromptMessage();
+                hidePopUp();
+            } else {
+                showPreviousTextAndHidePopUp(!_completionAccepted);
+            }
         }
         
         private function onInputFieldKeyDown(event: KeyboardEvent) : void {        	            
@@ -428,20 +458,20 @@ package com.jabbypanda.controls {
                     break;
                 case Keyboard.TAB:
                 case Keyboard.ESCAPE:
-                    restoreEnteredTextAndHidePopUp(!_completionAccepted);
+                    showPreviousTextAndHidePopUp(!_completionAccepted);
                     break;
             }            
         }
         
-        private function onListItemClick(event : HighlightItemListEvent) : void {                        
-            acceptCompletion();            
+        private function onListItemClick(event : HighlightItemListEvent) : void {            
+            acceptCompletion();
             event.stopPropagation();
         }
         
         private function onMouseDownOutside(event:FlexMouseEvent) : void {            
             var mouseDownInsideComponent : Boolean = false;            
             var clickedObject : DisplayObjectContainer = event.relatedObject as DisplayObjectContainer;
-                        
+            
             while (!(clickedObject.parent is SystemManager)) {                
                 if (clickedObject == this) {
                     mouseDownInsideComponent = true;
@@ -450,25 +480,36 @@ package com.jabbypanda.controls {
                 
                 clickedObject = clickedObject.parent;
             }
-                        
+            
             if (!mouseDownInsideComponent) {                
-                restoreEnteredTextAndHidePopUp(!_completionAccepted);
+                showPreviousTextAndHidePopUp(!_completionAccepted);
             }
         }
-                                    
+        
+        private function onAddedToStage(event : Event) : void {            
+            focusManager.addEventListener(FlexEvent.FLEX_WINDOW_ACTIVATE, onFlexWindowActivate);
+        }
+        
+        private function onFlexWindowActivate(event : FlexEvent) : void {
+            /* reset lastFocus value to prevent shifting focus 
+            to previously selected component
+            */
+            (focusManager as FocusManager).lastFocus = null;                        
+        }
+        
         private var _collection : ArrayCollection = new ArrayCollection();
-    
+        
         private var _completionAccepted : Boolean;
         
         private var _dataProviderChanged : Boolean;        
-                
+        
         private var _enteredText : String = "";
         
         private var _labelField : String;
         
         private var _labelFunction : Function;
         
-        private var _previouslyEnteredText : String = "";
+        private var _previouslyDisplayedText : String = "";
         
         private var _searchMode : String = SearchModes.INFIX_SEARCH;
         
@@ -480,8 +521,12 @@ package com.jabbypanda.controls {
         
         private var _promptChanged : Boolean;
         
+        private var _errorMessage : String = "No available options";
+        
+        private var _errorMessageChanged : Boolean;
+        
         private var _enabledChanged : Boolean;
-               
+        
     }
-		
+    
 }
