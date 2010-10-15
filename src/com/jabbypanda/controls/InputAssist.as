@@ -357,7 +357,7 @@ package com.jabbypanda.controls {
         }
         
         private function displayInputTextText(selectedItem : Object) : void {
-            _previouslyDisplayedText = enteredText = getSelectedItemDisplayLabel(selectedItem as Object);                                    
+            _previouslyDisplayedText = enteredText = itemToLabel(selectedItem as Object);                                    
         }
         
         private function displayErrorMessage() : void {
@@ -371,14 +371,7 @@ package com.jabbypanda.controls {
                 inputTxt.text = _prompt;
             }            
         }
-        
-        private function getSelectedItemDisplayLabel(item : Object) : String {
-            /*if (item == null) {                
-            return "";                
-            }*/			
-            return itemToLabel(item);                        
-        }
-        
+                
         private function hidePopUp() : void {
             if (isDropDownOpen) {
                 popUp.popUp.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);
