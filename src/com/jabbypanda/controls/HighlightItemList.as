@@ -13,7 +13,7 @@ package com.jabbypanda.controls {
     
     import spark.components.List;
     
-    use namespace mx_internal;  //ListBase and List share selection properties that are mx_internal
+    use namespace mx_internal;
     
     /**
      *  The color of the background for highlighted text segments 
@@ -54,15 +54,7 @@ package com.jabbypanda.controls {
             super.item_mouseDownHandler(event);
             dispatchEvent(new HighlightItemListEvent(HighlightItemListEvent.ITEM_CLICK));
         }
-        
-        override protected function adjustSelectionAndCaretUponNavigation(event:KeyboardEvent):void
-        {
-            // If rtl layout, need to swap Keyboard.LEFT and Keyboard.RIGHT.
-            var navigationUnit:uint = mapKeycodeForLayoutDirection(event);            
-            var proposedNewIndex:int = layout.getNavigationDestinationIndex(caretIndex, navigationUnit, arrowKeysWrapFocus);
-            super.adjustSelectionAndCaretUponNavigation(event);
-        }
-                
+                        
         override protected function dataProvider_collectionChangeHandler(event:Event):void {
             super.dataProvider_collectionChangeHandler(event);
             
