@@ -269,8 +269,16 @@ package com.jabbypanda.controls {
                 _dataProviderChanged = false;
             }
             
-            if (_selectedItemChanged) {                
-                displayInputTextText(_selectedItem);
+            if (_selectedItemChanged) {
+                if (!selectedItem) {
+                    if (prompt) {
+                        displayPromptMessage();
+                    } else {
+                        displayInputTextText(selectedItem);
+                    }
+                }  else {
+                    displayInputTextText(_selectedItem);
+                }
                 _selectedItemChanged = false;
             }
             
@@ -352,15 +360,11 @@ package com.jabbypanda.controls {
                 hidePopUp();
             } else if (forceOpen || enteredText.length > 0) {
                 showPopUp();
-                
-                if (isDropDownOpen && requireSelection) {                
-                    setListOptionsSelectedIndex();
-                }
             }
         }
         
         private function displayInputTextText(selectedItem : Object) : void {
-            _previouslyDisplayedText = enteredText = getSelectedItemDisplayLabel(selectedItem as Object);                                    
+            _previouslyDisplayedText = enteredText = itemToLabel(selectedItem as Object);                                    
         }
         
         private function displayErrorMessage() : void {
@@ -374,14 +378,7 @@ package com.jabbypanda.controls {
                 inputTxt.text = _prompt;
             }            
         }
-        
-        private function getSelectedItemDisplayLabel(item : Object) : String {
-            /*if (item == null) {                
-                return "";                
-            }*/			
-            return itemToLabel(item);                        
-        }
-        
+                
         private function hidePopUp() : void {
             if (isDropDownOpen) {
                 popUp.popUp.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);

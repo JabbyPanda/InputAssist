@@ -2,13 +2,18 @@ package com.jabbypanda.controls {
     
     import com.jabbypanda.event.HighlightItemListEvent;
     
+    import flash.debugger.enterDebugger;
+    import flash.events.Event;
     import flash.events.KeyboardEvent;
     import flash.events.MouseEvent;
     
-    import mx.core.FlexGlobals;
-    import mx.styles.CSSStyleDeclaration;
+    import mx.core.mx_internal;
+    import mx.events.CollectionEvent;
+    import mx.events.CollectionEventKind;
     
     import spark.components.List;
+    
+    use namespace mx_internal;  //ListBase and List share selection properties that are mx_internal
     
     /**
      *  The color of the background for highlighted text segments 
@@ -48,6 +53,29 @@ package com.jabbypanda.controls {
         override protected function item_mouseDownHandler(event:MouseEvent) : void {
             super.item_mouseDownHandler(event);
             dispatchEvent(new HighlightItemListEvent(HighlightItemListEvent.ITEM_CLICK));
+        }
+        
+        override protected function adjustSelectionAndCaretUponNavigation(event:KeyboardEvent):void
+        {
+            // If rtl layout, need to swap Keyboard.LEFT and Keyboard.RIGHT.
+            var navigationUnit:uint = mapKeycodeForLayoutDirection(event);            
+            var proposedNewIndex:int = layout.getNavigationDestinationIndex(caretIndex, navigationUnit, arrowKeysWrapFocus);
+            super.adjustSelectionAndCaretUponNavigation(event);
+        }
+                
+        override protected function dataProvider_collectionChangeHandler(event:Event):void {
+            super.dataProvider_collectionChangeHandler(event);
+            
+            if (event is CollectionEvent) {
+                var ce:CollectionEvent = CollectionEvent(event);            
+                
+                // workaround to set caretIndex to 0 if selection is required
+                if (ce.kind == CollectionEventKind.REFRESH) {
+                    if (requireSelection) {
+                        setCurrentCaretIndex(0);
+                    }    
+                }
+            }
         }
         
         private var _lookupValue : String = "";
