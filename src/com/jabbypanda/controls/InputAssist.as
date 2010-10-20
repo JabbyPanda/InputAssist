@@ -197,7 +197,7 @@ package com.jabbypanda.controls {
                     break;
                 case SearchModes.INFIX_SEARCH :
                     
-                    if (itemLabel.search(enteredText.toLowerCase()) != -1) {
+                    if (itemLabel.indexOf(enteredText.toLowerCase()) != -1) {
                         return true;   
                     }                         
                     break;

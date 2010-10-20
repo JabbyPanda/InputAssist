@@ -3,6 +3,7 @@ v0.13
 [!] Fixed issue with resetting visible "prompt" value when changing dataProvider
 [!] Fixed issue by keyboard navigation by the help of Keyboard.UP and Keyboard.DOWN buttons 
 within option list if option list was closed and reopened.  
+[!] Items that had "-" or "+" symbols in its labels were not properly filtered
 
 v0.12
 [+] Added property "prompt"
