@@ -97,7 +97,7 @@ package com.jabbypanda.controls {
         		_collection = new ArrayCollection(value as Array);
             }
         	else if (value is ArrayCollection) {
-        		_collection = value as ArrayCollection;                
+                _collection = new ArrayCollection((value as ArrayCollection).source);                
         	} else {
                 _collection = new ArrayCollection();
             }
