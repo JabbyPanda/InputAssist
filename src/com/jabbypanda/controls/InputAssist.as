@@ -87,7 +87,6 @@ package com.jabbypanda.controls {
         public function InputAssist() {
             super();
             this.mouseEnabled = true;
-            this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
             dataProvider = null;
         }        
                         
@@ -232,10 +231,10 @@ package com.jabbypanda.controls {
             if (instance == inputTxt) {
                 inputTxt.text = _enteredText;                
                 
-                inputTxt.addEventListener(FocusEvent.FOCUS_IN, onInputFieldFocusIn);
-                inputTxt.addEventListener(FocusEvent.FOCUS_OUT, onInputFieldFocusOut);
-                inputTxt.addEventListener(TextOperationEvent.CHANGE, onInputFieldChange);
-                inputTxt.addEventListener(KeyboardEvent.KEY_DOWN, onInputFieldKeyDown);            	
+                inputTxt.addEventListener(FocusEvent.FOCUS_IN, onInputFieldFocusIn, false, 0, true);
+                inputTxt.addEventListener(FocusEvent.FOCUS_OUT, onInputFieldFocusOut, false, 0, true);
+                inputTxt.addEventListener(TextOperationEvent.CHANGE, onInputFieldChange, false, 0, true);
+                inputTxt.addEventListener(KeyboardEvent.KEY_DOWN, onInputFieldKeyDown, false, 0, true);
             }
             
             if (instance == list) {
@@ -246,7 +245,7 @@ package com.jabbypanda.controls {
                 list.requireSelection = requireSelection;
                 list.styleName = new StyleProxy(this, {});
                 
-                list.addEventListener(HighlightItemListEvent.ITEM_CLICK, onListItemClick);
+                list.addEventListener(HighlightItemListEvent.ITEM_CLICK, onListItemClick, false, 0, true);
             }                        
         }
         
@@ -485,17 +484,7 @@ package com.jabbypanda.controls {
                 showPreviousTextAndHidePopUp(!_completionAccepted);
             }
         }
-        
-        private function onAddedToStage(event : Event) : void {            
-            focusManager.addEventListener(FlexEvent.FLEX_WINDOW_ACTIVATE, onFlexWindowActivate);
-        }
-        
-        private function onFlexWindowActivate(event : FlexEvent) : void {
-            /* reset lastFocus value to prevent shifting focus 
-            to previously selected component
-            */
-            (focusManager as FocusManager).lastFocus = null;                        
-        }
+                
                                     
         private var _collection : ArrayCollection = new ArrayCollection();
     
