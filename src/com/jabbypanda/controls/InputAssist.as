@@ -12,6 +12,8 @@ package com.jabbypanda.controls {
 	import flash.ui.Keyboard;
 	
 	import mx.collections.ArrayCollection;
+	import mx.collections.ArrayList;
+	import mx.collections.IList;
 	import mx.core.FlexGlobals;
 	import mx.core.mx_internal;
 	import mx.events.FlexEvent;
@@ -91,11 +93,12 @@ package com.jabbypanda.controls {
         }        
                         
         [Bindable]
-        public function set dataProvider(value:Object) : void {
+        public function set dataProvider(value : Object) : void {
             if (value is Array) {
         		_collection = new ArrayCollection(value as Array);
-            }
-        	else if (value is ArrayCollection) {
+            } else if (value is ArrayList) {
+                _collection = new ArrayCollection(ArrayList(value).source);                
+            } else if (value is ArrayCollection) {
                 _collection = new ArrayCollection((value as ArrayCollection).source);                
         	} else {
                 _collection = new ArrayCollection();

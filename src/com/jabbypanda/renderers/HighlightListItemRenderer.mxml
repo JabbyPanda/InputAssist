@@ -27,7 +27,7 @@
             override public function set data(value:Object):void {
                 super.data = value;
                 
-                HighlightItemList(owner).addEventListener(HighlightItemListEvent.LOOKUP_VALUE_CHANGE, onLookupValueChange);
+                HighlightItemList(owner).addEventListener(HighlightItemListEvent.LOOKUP_VALUE_CHANGE, onLookupValueChange, false, 0, true);
             }
             
             private function applyHighlight():void {                

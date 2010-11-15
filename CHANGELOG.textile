@@ -7,6 +7,7 @@ within option list if option list was closed and reopened.
 [!] Creating complete copy of passed ArrayCollection into dataProvider to avoid filtering of the original data source
 [!] Fixed RTE when using InputAssist control within Adobe AIR app in "onFlexWindowActivate" event listener
 [!] Started to use weak references when adding event listeners to avoid possible memory leaks
+[!] "dataProvider" property now accepts data list typed as ArrayList
  
 
 v0.12
