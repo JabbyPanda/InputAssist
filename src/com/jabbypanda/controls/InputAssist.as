@@ -16,6 +16,8 @@ package com.jabbypanda.controls {
 	import mx.collections.IList;
 	import mx.core.FlexGlobals;
 	import mx.core.mx_internal;
+	import mx.events.CollectionEvent;
+	import mx.events.CollectionEventKind;
 	import mx.events.FlexEvent;
 	import mx.events.FlexMouseEvent;
 	import mx.managers.FocusManager;
@@ -98,11 +100,13 @@ package com.jabbypanda.controls {
         		_collection = new ArrayCollection(value as Array);
             } else if (value is ArrayList) {
                 _collection = new ArrayCollection(ArrayList(value).source);                
+                ArrayList(value).addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderCollectionChange, false, 0, true);
             } else if (value is ArrayCollection) {
-                _collection = new ArrayCollection((value as ArrayCollection).source);                
+                _collection = new ArrayCollection((value as ArrayCollection).source);
+                ArrayCollection(value).addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderCollectionChange, false, 0, true);
         	} else {
                 _collection = new ArrayCollection();
-            }
+            }            
             
             //reset previously selected item
             selectedItem = null;
@@ -253,7 +257,7 @@ package com.jabbypanda.controls {
         }
         
         override protected function commitProperties():void {            
-            if (_dataProviderChanged) {                                
+            if (_dataProviderChanged) {
                 list.dataProvider = _collection;
                 
                 if (!dataProvider || dataProvider.length == 0) {
@@ -423,6 +427,11 @@ package com.jabbypanda.controls {
             return popUp.displayPopUp;
         }
         
+        private function onDataProviderCollectionChange(event : CollectionEvent) : void {
+            _dataProviderChanged = true;
+            invalidateProperties();
+        }
+        
         private function onInputFieldChange(event : TextOperationEvent = null) : void {
             _completionAccepted = false;
             enteredText = inputTxt.text;
@@ -486,8 +495,7 @@ package com.jabbypanda.controls {
             if (!mouseDownInsideComponent) {                
                 showPreviousTextAndHidePopUp(!_completionAccepted);
             }
-        }
-                
+        }               
                                     
         private var _collection : ArrayCollection = new ArrayCollection();
     

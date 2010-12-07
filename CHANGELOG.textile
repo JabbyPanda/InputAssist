@@ -1,3 +1,7 @@
+v0.14
+
+[!] Fixed issue when adding/removing dynamically items to dataProvider did not reflect in visual updating of the component
+  
 v0.13
 
 [!] Fixed issue with resetting visible "prompt" value when changing dataProvider
