@@ -8,12 +8,14 @@ package com.jabbypanda.controls {
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
 	import flash.events.FocusEvent;
+	import flash.events.IEventDispatcher;
 	import flash.events.KeyboardEvent;
 	import flash.ui.Keyboard;
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.ArrayList;
 	import mx.collections.IList;
+	import mx.collections.ListCollectionView;
 	import mx.core.FlexGlobals;
 	import mx.core.mx_internal;
 	import mx.events.CollectionEvent;
@@ -96,16 +98,20 @@ package com.jabbypanda.controls {
                         
         [Bindable]
         public function set dataProvider(value : Object) : void {
+            if (dataProvider && dataProvider is IList) {
+                dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderCollectionChange);
+            }
+            
             if (value is Array) {
-        		_collection = new ArrayCollection(value as Array);
+        		_collection = new ListCollectionView(new ArrayList(value as Array));
             } else if (value is ArrayList) {
-                _collection = new ArrayCollection(ArrayList(value).source);                
                 ArrayList(value).addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderCollectionChange, false, 0, true);
+                _collection = new ListCollectionView(value as ArrayList);
             } else if (value is ArrayCollection) {
-                _collection = new ArrayCollection((value as ArrayCollection).source);
                 ArrayCollection(value).addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderCollectionChange, false, 0, true);
+                _collection = new ListCollectionView((value as ArrayCollection).list);
         	} else {
-                _collection = new ArrayCollection();
+                _collection = new ListCollectionView();
             }            
             
             //reset previously selected item
@@ -245,7 +251,6 @@ package com.jabbypanda.controls {
             }
             
             if (instance == list) {
-                list.dataProvider = _collection;
                 list.labelField = labelField;
                 list.labelFunction = labelFunction;
                 list.searchMode = searchMode;
@@ -259,7 +264,7 @@ package com.jabbypanda.controls {
         override protected function commitProperties():void {            
             if (_dataProviderChanged) {
                 list.dataProvider = _collection;
-                
+                                
                 if (!dataProvider || dataProvider.length == 0) {
                     enabled = false;
                     displayErrorMessage();
@@ -327,8 +332,10 @@ package com.jabbypanda.controls {
         }                
         
         protected function filterData() : void {
-            _collection.filterFunction = filterFunction;                        	
-            _collection.refresh();                                    
+            if (_collection) {
+                _collection.filterFunction = filterFunction;                        	
+                _collection.refresh();
+            }
         }
         
         protected function itemToLabel(item : Object) : String {
@@ -427,11 +434,11 @@ package com.jabbypanda.controls {
             return popUp.displayPopUp;
         }
         
-        private function onDataProviderCollectionChange(event : CollectionEvent) : void {
+        private function onDataProviderCollectionChange(event : CollectionEvent) : void {            
             _dataProviderChanged = true;
             invalidateProperties();
         }
-        
+                
         private function onInputFieldChange(event : TextOperationEvent = null) : void {
             _completionAccepted = false;
             enteredText = inputTxt.text;
@@ -495,9 +502,9 @@ package com.jabbypanda.controls {
             if (!mouseDownInsideComponent) {                
                 showPreviousTextAndHidePopUp(!_completionAccepted);
             }
-        }               
+        }                    
                                     
-        private var _collection : ArrayCollection = new ArrayCollection();
+        private var _collection : ListCollectionView;
     
         private var _completionAccepted : Boolean;
         
