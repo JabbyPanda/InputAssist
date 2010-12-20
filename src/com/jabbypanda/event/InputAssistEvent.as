@@ -9,6 +9,8 @@ package com.jabbypanda.event {
 		
         public static const CHANGE : String = "change";        
         
+        public static const VALUE_CHANGE : String = "valueChange";
+        
         public var data:Object;                
         
         public function InputAssistEvent(type:String, mydata:Object, bubbles:Boolean = false, cancelable:Boolean = false) {

@@ -27,7 +27,7 @@ package com.jabbypanda.controls {
      */
     [Style(name="highlightBackgroundColor", type="uint", format="Color", inherit="yes", theme="spark")]
     
-    [Event (name="itemClick", type="com.jabbypanda.event.HighlightItemListEvent")]
+    [Event (name="itemClick", type="mx.events.ItemClickEvent")]
     [Event (name="lookupValueChange", type="com.jabbypanda.event.HighlightItemListEvent")]
     public class HighlightItemList extends List {
         
@@ -49,12 +49,7 @@ package com.jabbypanda.controls {
         public function focusListUponKeyboardNavigation(event : KeyboardEvent) : void {            
             adjustSelectionAndCaretUponNavigation(event);            
         }                
-        
-        override protected function item_mouseDownHandler(event:MouseEvent) : void {
-            super.item_mouseDownHandler(event);
-            dispatchEvent(new HighlightItemListEvent(HighlightItemListEvent.ITEM_CLICK));
-        }
-                        
+                                
         override protected function dataProvider_collectionChangeHandler(event:Event):void {
             super.dataProvider_collectionChangeHandler(event);
             

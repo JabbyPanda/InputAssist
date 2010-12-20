@@ -1,28 +1,22 @@
 package com.jabbypanda.controls {
 
 	import com.jabbypanda.data.SearchModes;
-	import com.jabbypanda.event.HighlightItemListEvent;
 	import com.jabbypanda.event.InputAssistEvent;
 	
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
-	import flash.events.Event;
 	import flash.events.FocusEvent;
-	import flash.events.IEventDispatcher;
 	import flash.events.KeyboardEvent;
 	import flash.ui.Keyboard;
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.ArrayList;
-	import mx.collections.IList;
 	import mx.collections.ListCollectionView;
 	import mx.core.FlexGlobals;
 	import mx.core.mx_internal;
 	import mx.events.CollectionEvent;
-	import mx.events.CollectionEventKind;
-	import mx.events.FlexEvent;
 	import mx.events.FlexMouseEvent;
-	import mx.managers.FocusManager;
+	import mx.events.ItemClickEvent;
 	import mx.managers.SystemManager;
 	import mx.styles.CSSStyleDeclaration;
 	import mx.styles.StyleProxy;
@@ -98,8 +92,8 @@ package com.jabbypanda.controls {
                         
         [Bindable]
         public function set dataProvider(value : Object) : void {
-            if (dataProvider && dataProvider is IList) {
-                dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderCollectionChange);
+            if (_collection) {
+                _collection.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderCollectionChange);
             }
             
             if (value is Array) {
@@ -167,8 +161,13 @@ package com.jabbypanda.controls {
             return _selectedItem; 
         }
         
-        public function set selectedItem(item : Object) : void {            
-            _selectedItem = item;
+        public function set selectedItem(item : Object) : void {
+            if (isSelectedItemValid(item)) {
+                _selectedItem = item;
+            } else {
+                _selectedItem = null;
+            }
+            
             _selectedItemChanged = true;                                
             invalidateProperties();            
         }
@@ -242,8 +241,6 @@ package com.jabbypanda.controls {
             super.partAdded(partName, instance)
             
             if (instance == inputTxt) {
-                inputTxt.text = _enteredText;                
-                
                 inputTxt.addEventListener(FocusEvent.FOCUS_IN, onInputFieldFocusIn, false, 0, true);
                 inputTxt.addEventListener(FocusEvent.FOCUS_OUT, onInputFieldFocusOut, false, 0, true);
                 inputTxt.addEventListener(TextOperationEvent.CHANGE, onInputFieldChange, false, 0, true);
@@ -257,7 +254,7 @@ package com.jabbypanda.controls {
                 list.requireSelection = requireSelection;
                 list.styleName = new StyleProxy(this, {});
                 
-                list.addEventListener(HighlightItemListEvent.ITEM_CLICK, onListItemClick, false, 0, true);
+                list.addEventListener(ItemClickEvent.ITEM_CLICK, onListItemClick, false, 0, true);
             }                        
         }
         
@@ -270,7 +267,7 @@ package com.jabbypanda.controls {
                     displayErrorMessage();
                 } else {
                     enabled = true;
-                    if (prompt) {
+                    if (!selectedItem && prompt) {
                         displayPromptMessage();
                     } else {
                         displayInputTextText(selectedItem);
@@ -281,20 +278,18 @@ package com.jabbypanda.controls {
             }
             
             if (_selectedItemChanged) {
-                if (!selectedItem) {
-                    if (prompt) {
-                        displayPromptMessage();
-                    } else {
-                        displayInputTextText(selectedItem);
-                    }
-                }  else {
-                    displayInputTextText(_selectedItem);
+                if (!selectedItem && prompt) {
+                    displayPromptMessage();
+                } else {
+                    displayInputTextText(selectedItem);
                 }
                 _selectedItemChanged = false;
             }
             
             if (_promptChanged) {
-                displayPromptMessage();                
+                if (!selectedItem && prompt) {
+                    displayPromptMessage();
+                }                
                 _promptChanged = false;
             }
 
@@ -323,7 +318,7 @@ package com.jabbypanda.controls {
             if (list) {
                 list.lookupValue = _enteredText;
             }
-            
+                        
             filterData();
         }
         
@@ -344,6 +339,10 @@ package com.jabbypanda.controls {
             } else {
                 return LabelUtil.itemToLabel(item, labelField, labelFunction);
             }
+        }
+        
+        protected function get isDropDownOpen() : Boolean {
+            return popUp.displayPopUp;
         }
         
         private function acceptCompletion() : void {            
@@ -428,13 +427,23 @@ package com.jabbypanda.controls {
             }
                         
             hidePopUp();            
-        }                
-        
-        private function get isDropDownOpen() : Boolean {
-            return popUp.displayPopUp;
         }
         
-        private function onDataProviderCollectionChange(event : CollectionEvent) : void {            
+        private function isSelectedItemValid(proposedSelectedItem : Object) : Boolean {
+            for each (var item : Object in _collection) {
+                if (proposedSelectedItem == item) {
+                    return true;
+                }
+            }             
+            return false;
+        }
+        
+        private function onDataProviderCollectionChange(event : CollectionEvent) : void {
+            //reset selectedItem to null if it is anymore present in dataProvider 
+            if (!isSelectedItemValid(selectedItem)) {
+                selectedItem = null;
+            }
+                
             _dataProviderChanged = true;
             invalidateProperties();
         }
@@ -481,7 +490,7 @@ package com.jabbypanda.controls {
             }            
         }
         
-        private function onListItemClick(event : HighlightItemListEvent) : void {            
+        private function onListItemClick(event : ItemClickEvent) : void {            
             acceptCompletion();
             event.stopPropagation();
         }
