@@ -106,10 +106,7 @@ package com.jabbypanda.controls {
                 _collection = new ListCollectionView((value as ArrayCollection).list);
         	} else {
                 _collection = new ListCollectionView();
-            }            
-            
-            //reset previously selected item
-            selectedItem = null;
+            }                        
             
             if (isOurFocus(this.getFocus())) {
                 filterData();
@@ -162,7 +159,7 @@ package com.jabbypanda.controls {
         }
         
         public function set selectedItem(item : Object) : void {
-            if (isSelectedItemValid(item)) {
+            if (!_collection || isSelectedItemValid(item)) {
                 _selectedItem = item;
             } else {
                 _selectedItem = null;
@@ -260,6 +257,11 @@ package com.jabbypanda.controls {
         
         override protected function commitProperties():void {            
             if (_dataProviderChanged) {
+                //reset selectedItem to null if it is anymore present in dataProvider 
+                if (!isSelectedItemValid(selectedItem)) {
+                    selectedItem = null;
+                }
+                
                 list.dataProvider = _collection;
                                 
                 if (!dataProvider || dataProvider.length == 0) {
@@ -368,7 +370,7 @@ package com.jabbypanda.controls {
         }
         
         private function displayOptionsList() : void {
-            if (_collection.length == 0) {                
+            if (_collection && _collection.length == 0) {
                 hidePopUp();
             } else if (forceOpen || enteredText.length > 0) {
                 showPopUp();
@@ -380,15 +382,15 @@ package com.jabbypanda.controls {
         }
         
         private function displayErrorMessage() : void {
-            if (_collection.length == 0) {
+            if (_collection && _collection.length == 0) {
                 inputTxt.text = _errorMessage;
             }
         }
         
-        private function displayPromptMessage() : void {            
-            if (_collection.length > 0) {
+        private function displayPromptMessage() : void {
+            if (!_collection || _collection.length > 0) {
                 inputTxt.text = _prompt;
-            }            
+            }
         }
                 
         private function hidePopUp() : void {
@@ -438,12 +440,7 @@ package com.jabbypanda.controls {
             return false;
         }
         
-        private function onDataProviderCollectionChange(event : CollectionEvent) : void {
-            //reset selectedItem to null if it is anymore present in dataProvider 
-            if (!isSelectedItemValid(selectedItem)) {
-                selectedItem = null;
-            }
-                
+        private function onDataProviderCollectionChange(event : CollectionEvent) : void {                
             _dataProviderChanged = true;
             invalidateProperties();
         }
