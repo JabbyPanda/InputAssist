@@ -332,6 +332,8 @@ package com.jabbypanda.controls {
             if (_collection) {
                 _collection.filterFunction = filterFunction;                        	
                 _collection.refresh();
+                
+                callLater(popUp.updatePopUpTransform);
             }
         }
         

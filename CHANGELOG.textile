@@ -4,11 +4,13 @@ v0.14
 
 [!] selectedItem cannot be set to the value that is not present in dataProvider
 
-[!] setting "prompt dynamically does not reset displayedText
+[!] Setting "prompt dynamically does not reset displayedText
+
+[!] Updating the position of popUp with data items every time when available data list shrinks/expands.
 
 [*] private property _collection is now typed as ListCollectionView
 
-[*] replaced HighlightItemListEvent.ITEM_CLICK event with ItemClickEvent.ITEM_CLICK event
+[*] Replaced HighlightItemListEvent.ITEM_CLICK event with ItemClickEvent.ITEM_CLICK event
 
 v0.13
 
