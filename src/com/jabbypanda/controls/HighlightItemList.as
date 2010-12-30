@@ -7,6 +7,7 @@ package com.jabbypanda.controls {
     import flash.events.KeyboardEvent;
     import flash.events.MouseEvent;
     
+    import mx.core.FlexVersion;
     import mx.core.mx_internal;
     import mx.events.CollectionEvent;
     import mx.events.CollectionEventKind;
@@ -49,7 +50,7 @@ package com.jabbypanda.controls {
         public function focusListUponKeyboardNavigation(event : KeyboardEvent) : void {            
             adjustSelectionAndCaretUponNavigation(event);            
         }                
-                                
+        
         override protected function dataProvider_collectionChangeHandler(event:Event):void {
             super.dataProvider_collectionChangeHandler(event);
             

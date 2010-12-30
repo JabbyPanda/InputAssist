@@ -15,6 +15,7 @@ package com.jabbypanda.controls {
 	import mx.core.FlexGlobals;
 	import mx.core.mx_internal;
 	import mx.events.CollectionEvent;
+	import mx.events.FlexEvent;
 	import mx.events.FlexMouseEvent;
 	import mx.events.ItemClickEvent;
 	import mx.managers.SystemManager;
@@ -54,8 +55,8 @@ package com.jabbypanda.controls {
         
         public var requireSelection : Boolean = false;        
         
-        [SkinPart(required="true",type="spark.components.PopUpAnchor")]
-		public var popUp : PopUpAnchor;
+        [SkinPart(required="true",type="com.jabbypanda.controls.PopUpAnchorFixed")]
+		public var popUp : PopUpAnchorFixed;
         
         [SkinPart(required="true",type="odyssey.common.component.HighlightItemList")]
         public var list : HighlightItemList;
@@ -92,18 +93,15 @@ package com.jabbypanda.controls {
                         
         [Bindable]
         public function set dataProvider(value : Object) : void {
-            if (_collection) {
-                _collection.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderCollectionChange);
-            }
             
             if (value is Array) {
         		_collection = new ListCollectionView(new ArrayList(value as Array));
             } else if (value is ArrayList) {
                 ArrayList(value).addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderCollectionChange, false, 0, true);
-                _collection = new ListCollectionView(value as ArrayList);
+                _collection = new ListCollectionView(value as ArrayList);                
             } else if (value is ArrayCollection) {
                 ArrayCollection(value).addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderCollectionChange, false, 0, true);
-                _collection = new ListCollectionView((value as ArrayCollection).list);
+                _collection = new ListCollectionView((value as ArrayCollection).list);                
         	} else {
                 _collection = new ListCollectionView();
             }                        
@@ -252,11 +250,12 @@ package com.jabbypanda.controls {
                 list.styleName = new StyleProxy(this, {});
                 
                 list.addEventListener(ItemClickEvent.ITEM_CLICK, onListItemClick, false, 0, true);
+                list.addEventListener(FlexEvent.UPDATE_COMPLETE, onListUpdateComplete, false, 0, true);
             }                        
         }
         
         override protected function commitProperties():void {            
-            if (_dataProviderChanged) {
+            if (_dataProviderChanged) {                
                 //reset selectedItem to null if it is anymore present in dataProvider 
                 if (!isSelectedItemValid(selectedItem)) {
                     selectedItem = null;
@@ -275,7 +274,7 @@ package com.jabbypanda.controls {
                         displayInputTextText(selectedItem);
                     }
                 }
-                
+                                
                 _dataProviderChanged = false;
             }
             
@@ -332,8 +331,6 @@ package com.jabbypanda.controls {
             if (_collection) {
                 _collection.filterFunction = filterFunction;                        	
                 _collection.refresh();
-                
-                callLater(popUp.updatePopUpTransform);
             }
         }
         
@@ -442,11 +439,11 @@ package com.jabbypanda.controls {
             return false;
         }
         
-        private function onDataProviderCollectionChange(event : CollectionEvent) : void {                
+        private function onDataProviderCollectionChange(event : CollectionEvent) : void {            
             _dataProviderChanged = true;
             invalidateProperties();
         }
-                
+                        
         private function onInputFieldChange(event : TextOperationEvent = null) : void {
             _completionAccepted = false;
             enteredText = inputTxt.text;
@@ -489,9 +486,14 @@ package com.jabbypanda.controls {
             }            
         }
         
+        
         private function onListItemClick(event : ItemClickEvent) : void {            
             acceptCompletion();
             event.stopPropagation();
+        }
+        
+        private function onListUpdateComplete(event : FlexEvent) : void {
+            popUp.updatePopUpTransform();            
         }
         
         private function onMouseDownOutside(event:FlexMouseEvent) : void {            

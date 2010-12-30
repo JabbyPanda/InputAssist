@@ -27,21 +27,20 @@
     The PopUpAnchor control that opens the drop-down list. 
     -->
     
-    <s:PopUpAnchor id="popUp"  displayPopUp="false"
+    <c:PopUpAnchorFixed id="popUp"  displayPopUp="false"
                    top="0" bottom="0" left="0" right="0" 
-                   popUpWidthMatchesAnchorWidth="true"        
-                   popUpPosition="below">
-        <s:Group id="dropDown" width="100%">
-            <c:HighlightItemList id="list" width="100%"                                 
-                                 itemRenderer="com.jabbypanda.renderers.HighlightListItemRenderer">
-                <c:layout> 
-                    <s:VerticalLayout horizontalAlign="justify" 
-                                      gap="0"
-                                      requestedRowCount="{Math.min(hostComponent.maxRows, hostComponent.dataProvider.length)}"/> 
-                </c:layout> 
-            </c:HighlightItemList>
-        </s:Group>        
-    </s:PopUpAnchor>        
+                   popUpWidthMatchesAnchorWidth="true"                     
+                   popUpPosition="below">        
+        <c:HighlightItemList id="list" 
+                             width="100%"
+                             itemRenderer="com.jabbypanda.renderers.HighlightListItemRenderer">
+            <c:layout> 
+                <s:VerticalLayout
+                    useVirtualLayout="false"
+                    requestedMinRowCount="1"/> 
+            </c:layout> 
+        </c:HighlightItemList>                
+    </c:PopUpAnchorFixed>        
     <s:TextInput id="inputTxt" left="0" right="0" top="0" bottom="0"/>
     <s:BitmapImage source="{Icons.Progress}" 
                    visible="{hostComponent.processing}"
