@@ -35,10 +35,10 @@
                              width="100%"
                              itemRenderer="com.jabbypanda.renderers.HighlightListItemRenderer">
             <c:layout> 
-                <s:VerticalLayout
-                    useVirtualLayout="false"
-                    requestedMinRowCount="1"/> 
-            </c:layout> 
+                <s:VerticalLayout horizontalAlign="justify" 
+                                  gap="0"
+                                  requestedRowCount="{Math.min(hostComponent.maxRows, hostComponent.dataProvider.length)}"/> 
+            </c:layout>  
         </c:HighlightItemList>                
     </c:PopUpAnchorFixed>        
     <s:TextInput id="inputTxt" left="0" right="0" top="0" bottom="0"/>
