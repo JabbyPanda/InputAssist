@@ -7,6 +7,7 @@ package com.jabbypanda.controls {
 	import flash.display.DisplayObjectContainer;
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
 	import flash.ui.Keyboard;
 	
 	import mx.collections.ArrayCollection;
@@ -394,7 +395,8 @@ package com.jabbypanda.controls {
                 
         private function hidePopUp() : void {
             if (isDropDownOpen) {
-                popUp.popUp.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);
+                popUp.popUp.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);                
+                systemManager.removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
                 popUp.displayPopUp = false;
             }
         }
@@ -409,7 +411,8 @@ package com.jabbypanda.controls {
                     list.selectedIndex = -1;
                 }
                                         
-                popUp.popUp.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);
+                popUp.popUp.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, onMouseDownOutside);                
+                systemManager.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
             }
         }
         
@@ -496,6 +499,14 @@ package com.jabbypanda.controls {
             popUp.updatePopUpTransform();            
         }
         
+        private function onMouseWheel(event : MouseEvent) : void {
+            
+            trace ("event.target=", event.target);
+            if (!(DisplayObjectContainer(list).contains(DisplayObject(event.target)) && event.isDefaultPrevented())) {
+                hidePopUp();
+            }
+        } 
+            
         private function onMouseDownOutside(event:FlexMouseEvent) : void {            
             var mouseDownInsideComponent : Boolean = false;            
             var clickedObject : DisplayObjectContainer = event.relatedObject as DisplayObjectContainer;
