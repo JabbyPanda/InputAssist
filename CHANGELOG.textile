@@ -1,3 +1,7 @@
+v0.15
+
+[!] Fixed issue when open popup windows was not automatically closed when MouseEvent.MOUSE_WHEEL occurred somewhere outside of the component
+
 v0.14
 
 [!] Fixed issue when adding/removing dynamically items to dataProvider did not reflect in visual updating of the component

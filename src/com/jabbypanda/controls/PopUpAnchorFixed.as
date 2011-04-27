@@ -23,6 +23,12 @@ package com.jabbypanda.controls
             super();
         }
         
+        override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+        {
+            super.updateDisplayList(unscaledWidth, unscaledHeight);                
+            updatePopUpTransform();            
+        }
+        
         override public function updatePopUpTransform():void
         {            
             var m:Matrix = MatrixUtil.getConcatenatedMatrix(this);
