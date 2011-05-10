@@ -349,7 +349,9 @@ package com.jabbypanda.controls {
         
         private function acceptCompletion() : void {            
             var proposedSelectedItem : Object;            
-            if (_collection.length > 0 && list.selectedIndex >= 0) {
+            if (_collection &&
+                _collection.length > 0 && 
+                list.selectedIndex >= 0) {
                 _completionAccepted = true;
                 proposedSelectedItem = _collection.getItemAt(list.selectedIndex);
             }
@@ -479,8 +481,9 @@ package com.jabbypanda.controls {
                 case Keyboard.PAGE_DOWN: 
                     list.focusListUponKeyboardNavigation(event);                                     			
                     break;                   
-                case Keyboard.ENTER:
+                case Keyboard.ENTER:                    
                     acceptCompletion();
+                    
                     break;
                 case Keyboard.TAB:
                 case Keyboard.ESCAPE:
@@ -500,8 +503,6 @@ package com.jabbypanda.controls {
         }
         
         private function onMouseWheel(event : MouseEvent) : void {
-            
-            trace ("event.target=", event.target);
             if (!(DisplayObjectContainer(list).contains(DisplayObject(event.target)) && event.isDefaultPrevented())) {
                 hidePopUp();
             }
