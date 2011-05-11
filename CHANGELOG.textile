@@ -5,6 +5,8 @@ v0.15
 [!] Fixed issue "Error when hit Enter in InputAssist with no dataProvider" 
 https://github.com/JabbyPanda/InputAssist/issues/2
 
+[*] Making sure that InputAssist is usable in projects that are built with Flex 4.5 SDK
+
 v0.14
 
 [!] Fixed issue when adding/removing dynamically items to dataProvider did not reflect in visual updating of the component

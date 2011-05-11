@@ -7,6 +7,7 @@ package com.jabbypanda.controls
     import flash.geom.Matrix;
     import flash.geom.Point;
     
+    import mx.core.FlexVersion;
     import mx.core.UIComponent;
     import mx.core.mx_internal;
     import mx.utils.MatrixUtil;
@@ -15,28 +16,33 @@ package com.jabbypanda.controls
     
     use namespace mx_internal;
         
-    public class PopUpAnchorFixed extends PopUpAnchor
-    {
+    public class PopUpAnchorFixed extends PopUpAnchor {
                 
-        public function PopUpAnchorFixed()
-        {
+        public function PopUpAnchorFixed() {
             super();
+            trace ("-PopUpAnchorFixed-")
         }
         
-        override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
-        {
+        override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
             super.updateDisplayList(unscaledWidth, unscaledHeight);                
             updatePopUpTransform();            
         }
         
-        override public function updatePopUpTransform():void
-        {            
-            var m:Matrix = MatrixUtil.getConcatenatedMatrix(this);
+        override public function updatePopUpTransform():void {            
+            
+            var m:Matrix;
+            var functionArgs : Array;
+            if (FlexVersion.CURRENT_VERSION > FlexVersion.VERSION_4_0) {                
+                functionArgs = [this, this];
+            } else {                
+                functionArgs = [this];                
+            }
+            
+            m = MatrixUtil.getConcatenatedMatrix.apply(this, functionArgs);
             
             // Set the dimensions explicitly because UIComponents always set themselves to their
             // measured / explicit dimensions if they are parented by the SystemManager. 
-            if (popUp is UIComponent)
-            {
+            if (popUp is UIComponent) {
                 if (popUpWidthMatchesAnchorWidth) {
                     UIComponent(popUp).width = unscaledWidth;
                 }
@@ -45,9 +51,7 @@ package com.jabbypanda.controls
                     UIComponent(popUp).height = unscaledHeight;
                 }
                 
-            }
-            else
-            {
+            } else {
                 var w:Number = popUpWidthMatchesAnchorWidth ? unscaledWidth : popUp.measuredWidth;
                 var h:Number = popUpHeightMatchesAnchorHeight ? unscaledHeight : popUp.measuredHeight;
                 popUp.setActualSize(w, h);
@@ -57,17 +61,14 @@ package com.jabbypanda.controls
             
             // the transformation doesn't take the fullScreenRect in to account
             // if we are in fulLScreen mode. This code will throw a RTE if run from inside of a sandbox. 
-            try
-            {
+            try {
                 var smStage:Stage = systemManager.stage;
-                if (smStage && smStage.displayState != StageDisplayState.NORMAL && smStage.fullScreenSourceRect)
-                {
+                if (smStage && smStage.displayState != StageDisplayState.NORMAL && smStage.fullScreenSourceRect) {
                     popUpPoint.x += smStage.fullScreenSourceRect.x;
                     popUpPoint.y += smStage.fullScreenSourceRect.y;
                 }
             }
-            catch (e:Error)
-            {
+            catch (e:Error) {
                 // Ignore the RTE
             }
             
@@ -77,18 +78,18 @@ package com.jabbypanda.controls
             // Position the popUp. 
             m.tx = Math.round(popUpPoint.x);
             m.ty = Math.round(popUpPoint.y);
-            if (popUp is UIComponent)
+            if (popUp is UIComponent) {
                 UIComponent(popUp).setLayoutMatrix(m,false);
-            else if (popUp is DisplayObject)
-                DisplayObject(popUp).transform.matrix = m;            
+            } else if (popUp is DisplayObject) {
+                DisplayObject(popUp).transform.matrix = m;
+            }
             
             //super.updatePopUpTransform();
             
             // apply the color transformation, but restore alpha value of popup
             var oldAlpha:Number = DisplayObject(popUp).alpha;
             var tmpColorTransform:ColorTransform = $transform.concatenatedColorTransform;
-            if (tmpColorTransform != null)
-            {
+            if (tmpColorTransform != null) {
                 tmpColorTransform.alphaMultiplier = oldAlpha;
                 tmpColorTransform.alphaOffset = 0;
             }
