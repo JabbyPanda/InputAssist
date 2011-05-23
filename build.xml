@@ -11,7 +11,7 @@
             </not>
         </condition>
         Error!
-        You need to set FLEX_HOME prperty (path to Flex SDK)
+        You need to set FLEX_HOME property (path to Flex SDK)
         in build.properties file
         located in the same dir as build.xml!
         For example:
@@ -55,25 +55,17 @@
 	<target name="build-library" depends="init">
 	        <echo>[build-core] Compiling InputAssist SWC</echo>
 	        <echo>[build-core] Using Flex SDK at: ${FLEX_HOME}</echo>       
-	        <compc output="${bin.loc}/${project.name.versioned}.swc">	        	
+	        <compc output="${bin.loc}/${project.name.versioned}.swc">	  	                  	
 	        	<namespace uri="http://www.jabbypanda.com/2010/controls" manifest="${basedir}/manifest.xml" />
 	        	<namespace uri="library://ns.adobe.com/flex/spark" manifest="${FLEX_HOME}/frameworks/spark-manifest.xml"/>    
 	        	<namespace uri="http://ns.adobe.com/mxml/2009" manifest="${FLEX_HOME}/frameworks/mxml-2009-manifest.xml"/> 
 	        	<namespace uri="http://www.adobe.com/2006/mxml" manifest="${FLEX_HOME}/frameworks/mxml-manifest.xml"/>
 	        	<include-namespaces>http://www.jabbypanda.com/2010/controls</include-namespaces>
 	        	<include-file name="defaults.css" path="${basedir}/defaults.css"/>	        	
-	        	<include-file name="manifest.xml" path="${basedir}/manifest.xml"/>
+	        	<include-file name="manifest.xml" path="${basedir}/manifest.xml"/>	        	
 	            <source-path path-element="${basedir}/src"/>
 	        	<include-sources dir="${basedir}/src" includes="*"/>
-	        	<debug>false</debug>
-	        	<external-library-path file="${FLEX_HOME}/frameworks/libs/framework.swc"/>
-                <external-library-path file="${FLEX_HOME}/frameworks/libs/flex.swc"/>
-                <external-library-path file="${FLEX_HOME}/frameworks/libs/spark.swc"/>
-                <external-library-path file="${FLEX_HOME}/frameworks/libs/sparkskins.swc"/>
-                <external-library-path file="${FLEX_HOME}/frameworks/libs/textLayout.swc"/>
-                <external-library-path file="${FLEX_HOME}/frameworks/libs/rpc.swc"/>
-                <external-library-path file="${FLEX_HOME}/frameworks/libs/utilities.swc"/>                	        	
-                <external-library-path file="${FLEX_HOME}/frameworks/libs/player/10.0/playerglobal.swc"/>
+	        	<load-config>config.xml</load-config>
 	        </compc>
 	    </target>	
     <!-- Package the Build -->
@@ -106,6 +98,6 @@
         <delete file="${dist.loc}/${project.name.versioned}.swc"/>
         <delete file="${dist.loc}/README"/>
         <delete file="${dist.loc}/LICENSE"/>                
-        <echo>[package] Release packaged successfully</echo>
+        <echo>[package] Release package successfully</echo>
     </target>
 </project>

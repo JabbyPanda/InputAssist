@@ -1,0 +1,18 @@
+<flex-config>
+    <compiler>
+        <incremental>true</incremental>
+        <locale>
+            <locale-element>en_US</locale-element>
+        </locale>
+        <accessible>true</accessible>
+        <debug>false</debug>
+        <optimize>true</optimize>
+        <strict>true</strict>
+        <external-library-path>
+            <path-element>${flexlib}/libs/player/{targetPlayerMajorVersion}.{targetPlayerMinorVersion}/playerglobal.swc</path-element>
+            <path-element>${flexlib}/libs/framework.swc</path-element>            
+            <path-element>${flexlib}/libs/spark.swc</path-element>            
+            <path-element>${flexlib}/libs/textLayout.swc</path-element>                        
+        </external-library-path>        
+    </compiler>        
+</flex-config>
