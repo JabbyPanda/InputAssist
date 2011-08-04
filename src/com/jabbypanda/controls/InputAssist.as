@@ -2,6 +2,7 @@ package com.jabbypanda.controls {
 
 	import com.jabbypanda.data.SearchModes;
 	import com.jabbypanda.event.InputAssistEvent;
+	import com.jabbypanda.skins.InputAssistSkin;
 	
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
@@ -29,6 +30,8 @@ package com.jabbypanda.controls {
 	import spark.events.TextOperationEvent;
 	import spark.utils.LabelUtil;
     
+	InputAssistSkin;
+	
     use namespace mx_internal;
 	
     /**
